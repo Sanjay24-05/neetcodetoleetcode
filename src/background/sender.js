@@ -11,9 +11,10 @@ import { MSG } from '../shared/messages.js';
  *   storage: {getLog: () => Promise<object>, setLog: (l: object) => Promise<void>,
  *     getUserMappings: () => Promise<Record<string,string>>, setUserMappings: (m: Record<string,string>) => Promise<void>},
  *   table: Record<string, string|null>, now: () => number,
- *   onProgress?: (key: string, phase: 'sending'|'judging') => void}} deps
+ *   onProgress?: (key: string, phase: 'sending'|'judging') => void,
+ *   ready?: Promise<unknown>}} deps  ready: resolves once LeetCode header rules are installed
  */
-export function createSender({ client, storage, table, now, onProgress = () => {} }) {
+export function createSender({ client, storage, table, now, onProgress = () => {}, ready = Promise.resolve() }) {
   let busy = false;
 
   /** @returns {Promise<{resolution: 'ok', slug: string, question: object} | {resolution: 'premium'|'no-match'|'unknown-lang'}>} */
@@ -58,6 +59,7 @@ export function createSender({ client, storage, table, now, onProgress = () => {
     },
 
     async [MSG.RESOLVE](msg) {
+      await ready;
       try {
         const r = await resolve(msg);
         return r.resolution === 'ok' ? { resolution: 'ok', leetcodeSlug: r.slug, leetcodeTitle: r.question.title } : { resolution: r.resolution };
@@ -71,6 +73,7 @@ export function createSender({ client, storage, table, now, onProgress = () => {
       if (busy) return { status: 'busy' };
       busy = true;
       try {
+        await ready;
         return await send(key, !!confirmed);
       } catch (e) {
         if (e instanceof LeetCodeError) return { status: 'error', kind: e.kind, message: e.message };
@@ -83,6 +86,7 @@ export function createSender({ client, storage, table, now, onProgress = () => {
     async [MSG.SET_MAPPING]({ neetcodeSlug, url }) {
       const slug = parseLeetCodeUrl(url);
       if (!slug) return { status: 'error', message: 'That isn’t a leetcode.com problem URL' };
+      await ready;
       let q;
       try { q = await client.getQuestion(slug); } catch (e) {
         if (e instanceof LeetCodeError) return { status: 'error', message: e.message };

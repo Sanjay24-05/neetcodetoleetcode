@@ -23,7 +23,7 @@ async function installHeaderRules() {
     }],
   });
 }
-installHeaderRules();
+const rulesReady = installHeaderRules().catch((e) => console.error('header rules failed', e));
 
 const storage = {
   getLog: async () => (await chrome.storage.local.get('log')).log ?? {},
@@ -46,7 +46,7 @@ async function broadcastProgress(key, phase) {
   }
 }
 
-const sender = createSender({ client, storage, table, now: () => Date.now(), onProgress: broadcastProgress });
+const sender = createSender({ client, storage, table, now: () => Date.now(), onProgress: broadcastProgress, ready: rulesReady });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (!message || message.type === MSG.SEND_PROGRESS) return false;

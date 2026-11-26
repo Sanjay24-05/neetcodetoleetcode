@@ -9,7 +9,8 @@
 // - Monaco is bundled as an ES module and is not exposed on window, so the live editor text is not
 //   readable from here. Edits after acceptance are detected by content.js from DOM events instead.
 //
-// Posts {source:'nc2lc', type:'NC_VERDICT', accepted, code, lang, statusDescription} to the content script.
+// Run uses a different callable (runCodeFunctionHttp), so only real submissions match SUBMIT_FN.
+// Posts {source:'nc2lc', type:'NC_VERDICT', accepted, code, lang, statusDescription, path} to the content script.
 (() => {
   const SUBMIT_FN = /\/executeCodeFunctionHttp(?:$|\?)/;
   const origFetch = window.fetch;
@@ -24,11 +25,12 @@
 
   window.fetch = function (input, init) {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url;
-    const p = origFetch.apply(this, arguments);
-    if (!url || !SUBMIT_FN.test(url)) return p;
+    if (!url || !SUBMIT_FN.test(url)) return origFetch.apply(this, arguments);
 
-    // Capture the code at the moment Submit was clicked, not when the verdict arrives.
+    // Capture the code and page at the moment Submit was clicked, not when the verdict arrives.
+    const path = location.pathname;
     const bodyPromise = readBody(input, init);
+    const p = origFetch.apply(this, arguments);
     p.then(async (res) => {
       try {
         const body = await bodyPromise;
@@ -39,7 +41,7 @@
         window.postMessage({
           source: 'nc2lc', type: 'NC_VERDICT',
           accepted: statusDescription === 'Accepted',
-          code: data.rawCode, lang: String(data.lang), statusDescription,
+          code: data.rawCode, lang: String(data.lang), statusDescription, path,
         }, window.location.origin);
       } catch { /* ignore: NeetCode's own UI still shows its result */ }
     }, () => {});

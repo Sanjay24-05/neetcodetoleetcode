@@ -2,8 +2,10 @@ import { getProblemInfo, findSubmitButton, isEditorEdit } from './page-adapter.j
 import { panelState } from '../shared/send-policy.js';
 import { MSG } from '../shared/messages.js';
 import { entryKey } from '../shared/log.js';
+import { makeSafeSend } from '../shared/safe-send.js';
+import { verdictBelongsTo, applySendResult } from './panel-logic.js';
 
-const send = (msg) => chrome.runtime.sendMessage(msg);
+const send = makeSafeSend((msg) => chrome.runtime.sendMessage(msg));
 
 /** Per-problem state; reset on SPA navigation. */
 let s = null;
@@ -65,38 +67,44 @@ async function resolve(lang) {
   if (!s) return;
   const p = s.problem;
   const r = await send({ type: MSG.RESOLVE, neetcodeSlug: p.neetcodeSlug, title: p.title, lang });
-  if (s?.problem === p) { s.resolution = r.resolution; render(); }
+  if (s?.problem !== p) return;
+  if (r.status === 'error') s.error = { kind: r.kind, message: r.message };
+  else s.resolution = r.resolution;
+  render();
 }
 
 async function onAccepted({ code, lang }) {
+  const cur = s;
   s.accepted = { code, lang };
   s.dirty = false;
   s.error = null;
   s.lastSend = null;
   s.note = '';
   render();
-  await send({ type: MSG.ACCEPTED, neetcodeSlug: s.problem.neetcodeSlug, title: s.problem.title, lang, code, acceptedAt: Date.now() });
+  const r = await send({ type: MSG.ACCEPTED, neetcodeSlug: cur.problem.neetcodeSlug, title: cur.problem.title, lang, code, acceptedAt: Date.now() });
+  if (r.status === 'error' && s === cur) { s.error = { kind: r.kind, message: r.message }; render(); return; }
   await resolve(lang);
 }
 
 async function onSend() {
-  if (!s?.accepted) return;
-  const key = entryKey(s.problem.neetcodeSlug, s.accepted.lang);
-  s.error = null; s.note = '';
+  const cur = s;
+  if (!cur?.accepted || cur.sending) return;
+  const key = entryKey(cur.problem.neetcodeSlug, cur.accepted.lang);
+  cur.error = null; cur.note = ''; cur.sending = 'sending'; render();
   let r = await send({ type: MSG.SEND, key, confirmed: false });
   if (r.status === 'needs-confirm') {
-    if (!window.confirm(r.message)) return render();
+    cur.sending = null; render();
+    if (!window.confirm(r.message)) return;
+    cur.sending = 'sending'; render();
     r = await send({ type: MSG.SEND, key, confirmed: true });
   }
-  s.sending = null;
-  if (r.status === 'done') s.lastSend = r.send;
-  else if (r.status === 'busy') s.note = 'Another submission is in progress';
-  else if (r.status === 'blocked') s.resolution = r.resolution;
-  else if (r.status === 'error') s.error = { kind: r.kind, message: r.message };
+  if (s !== cur) return; // navigated away; the log still has the result
+  Object.assign(s, applySendResult(s, r));
   render();
 }
 
 async function onSaveMapping() {
+  if (!s) return;
   const r = await send({ type: MSG.SET_MAPPING, neetcodeSlug: s.problem.neetcodeSlug, url: $('url').value });
   s.mappingMsg = r.status === 'ok' ? `Mapped to: ${r.leetcodeTitle}` : r.message;
   render();
@@ -118,7 +126,7 @@ $('clear').addEventListener('click', onClearMapping);
 
 window.addEventListener('message', (e) => {
   if (e.source !== window || e.data?.source !== 'nc2lc' || !s) return;
-  if (e.data.type === 'NC_VERDICT' && e.data.accepted) onAccepted(e.data);
+  if (e.data.type === 'NC_VERDICT' && e.data.accepted && verdictBelongsTo(e.data, s.problem.neetcodeSlug)) onAccepted(e.data);
 });
 
 for (const type of ['keydown', 'paste', 'cut', 'drop']) {

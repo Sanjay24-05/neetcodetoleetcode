@@ -1,7 +1,8 @@
 import { MSG } from '../shared/messages.js';
+import { makeSafeSend } from '../shared/safe-send.js';
 
 const app = document.getElementById('app');
-const send = (msg) => chrome.runtime.sendMessage(msg);
+const send = makeSafeSend((msg) => chrome.runtime.sendMessage(msg));
 
 /** Per-row transient UI state, keyed by entry key. */
 const rowState = new Map();
@@ -66,7 +67,11 @@ function render() {
   }
 }
 
-async function refresh() { data = await send({ type: MSG.GET_LOG }); render(); }
+async function refresh() {
+  const r = await send({ type: MSG.GET_LOG });
+  if (r.status === 'error') { app.replaceChildren(el('div', { className: 'empty', textContent: r.message })); return; }
+  data = r; render();
+}
 
 async function onSend(e) {
   const st = rs(e.key);
