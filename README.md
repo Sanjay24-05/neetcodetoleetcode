@@ -11,7 +11,9 @@ Nothing is ever sent automatically. One click = one submission.
 3. Open `chrome://extensions` (or `edge://extensions` / `brave://extensions`), turn on **Developer mode**, click **Load unpacked**, and pick the `dist/` folder.
 4. Stay logged into **leetcode.com** in the same browser. The extension uses that login and never copies your cookies anywhere.
 
-After pulling changes: `npm run build`, then click the reload icon on the extension card.
+After pulling changes: `npm run build`, click the reload icon on the extension card, then refresh any open NeetCode tabs.
+
+After reloading a NeetCode page, the button starts off until NeetCode accepts again. To send something you already got accepted, use the popup.
 
 ## Use
 
