@@ -1,0 +1,22 @@
+{
+  "name": "neetcode-to-leetcode",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "build": "node scripts/build.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "vitest": "^5.1.2"
+  },
+  "type": "module",
+  "private": true
+}
