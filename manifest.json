@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "NeetCode → LeetCode",
+  "version": "0.1.0",
+  "description": "Send your accepted NeetCode solution to LeetCode with one click.",
+  "permissions": ["storage", "cookies", "declarativeNetRequest"],
+  "host_permissions": ["https://neetcode.io/*", "https://leetcode.com/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "NeetCode → LeetCode log" },
+  "content_scripts": [
+    {
+      "matches": ["https://neetcode.io/*"],
+      "js": ["neetcode-main.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://neetcode.io/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
