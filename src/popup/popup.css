@@ -21,3 +21,5 @@ button.ghost:hover:not(:disabled) { background: #2c2c2c; }
 .map { display: flex; gap: 4px; margin: 4px 0 0 20px; }
 .map input { flex: 1; font: inherit; padding: 2px 6px; border-radius: 4px; border: 1px solid #555; background: #222; color: #eee; }
 .empty { padding: 24px 12px; color: #999; text-align: center; }
+.sub a.login { color: #ffb547; font-weight: 600; text-decoration: none; }
+.sub a.login:hover { text-decoration: underline; }

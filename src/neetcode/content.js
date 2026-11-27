@@ -4,6 +4,7 @@ import { MSG } from '../shared/messages.js';
 import { entryKey } from '../shared/log.js';
 import { makeSafeSend } from '../shared/safe-send.js';
 import { verdictBelongsTo, applySendResult, buttonLook } from './panel-logic.js';
+import { loginLink } from '../shared/login.js';
 
 const send = makeSafeSend((msg) => chrome.runtime.sendMessage(msg));
 
@@ -51,6 +52,9 @@ root.innerHTML = `
   .ghost:hover { background: #2c2c2c; }
   .msg { font-size: 11px; color: #aaa; margin-top: 4px; }
   .msg:empty { display: none; }
+  .login { display: inline-block; margin-top: 6px; padding: 4px 10px; border-radius: 4px; background: #ffa116; color: #1a1a1a; font: 600 12px system-ui, sans-serif; text-decoration: none; }
+  .login:hover { background: #ffb547; }
+  .login[hidden] { display: none; }
 </style>
 <div class="bar">
   <button id="go" class="off" disabled>→ LeetCode</button>
@@ -59,6 +63,7 @@ root.innerHTML = `
 <div class="card" id="card" role="dialog">
   <div class="head" id="head">NeetCode → LeetCode</div>
   <div class="status" id="status"></div>
+  <a class="login" id="login" target="_blank" rel="noopener" hidden>Log in to LeetCode ↗</a>
   <div class="sep"></div>
   <a id="fix">Wrong/missing match? Paste LeetCode URL</a>
   <div class="map" id="mapping" hidden>
@@ -100,6 +105,9 @@ function render() {
   go.title = status;
   $('head').textContent = s.problem.title;
   $('status').textContent = status;
+  const login = loginLink(s.error);
+  $('login').hidden = !login;
+  if (login) $('login').href = login;
   $('mapping').hidden = !s.mappingOpen;
   $('mapmsg').textContent = s.mappingMsg;
   const show = pinned || s.mappingOpen || Date.now() < flashUntil;

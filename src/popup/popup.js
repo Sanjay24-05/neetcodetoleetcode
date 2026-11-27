@@ -1,12 +1,13 @@
 import { MSG } from '../shared/messages.js';
 import { makeSafeSend } from '../shared/safe-send.js';
+import { loginLink } from '../shared/login.js';
 
 const app = document.getElementById('app');
 const send = makeSafeSend((msg) => chrome.runtime.sendMessage(msg));
 
 /** Per-row transient UI state, keyed by entry key. */
 const rowState = new Map();
-const rs = (key) => { if (!rowState.has(key)) rowState.set(key, { busy: false, phase: null, msg: '', mapOpen: false }); return rowState.get(key); };
+const rs = (key) => { if (!rowState.has(key)) rowState.set(key, { busy: false, phase: null, msg: '', login: null, mapOpen: false }); return rowState.get(key); };
 let data = { groups: [], userMappings: {} };
 
 const timeOf = (ms) => new Date(ms).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -45,7 +46,8 @@ function renderEntry(e) {
   const sub = el('div', { className: 'sub' },
     el('a', { textContent: 'Fix match', onclick: () => { st.mapOpen = !st.mapOpen; render(); } }),
     mapped ? el('span', { textContent: `→ ${mapped}` }) : null,
-    st.msg ? el('span', { textContent: st.msg }) : null);
+    st.msg ? el('span', { textContent: st.msg }) : null,
+    st.login ? el('a', { className: 'login', textContent: 'Log in to LeetCode ↗', href: st.login, target: '_blank', rel: 'noopener' }) : null);
   let map = null;
   if (st.mapOpen) {
     const input = el('input', { placeholder: 'https://leetcode.com/problems/…', value: mapped ? `https://leetcode.com/problems/${mapped}/` : '' });
@@ -75,7 +77,7 @@ async function refresh() {
 
 async function onSend(e) {
   const st = rs(e.key);
-  st.msg = '';
+  st.msg = ''; st.login = null;
   st.busy = true; render();
   try {
     let r = await send({ type: MSG.SEND, key: e.key, confirmed: false });
@@ -85,7 +87,7 @@ async function onSend(e) {
     }
     if (r.status === 'busy') st.msg = 'Another submission is in progress';
     else if (r.status === 'blocked') st.msg = { premium: 'LeetCode Premium — not sent', 'no-match': 'No LeetCode match', 'unknown-lang': 'This language isn’t supported on LeetCode' }[r.resolution];
-    else if (r.status === 'error') st.msg = r.message;
+    else if (r.status === 'error') { st.msg = r.message; st.login = loginLink(r); }
   } finally {
     st.busy = false; st.phase = null;
     await refresh();

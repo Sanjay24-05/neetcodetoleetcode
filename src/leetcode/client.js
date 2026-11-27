@@ -11,6 +11,7 @@ const isLoginRedirect = (r) => r.redirected && /\/accounts\/login/.test(r.url);
 function errorFor(r) {
   if (r.status === 401 || r.status === 403 || isLoginRedirect(r)) return new LeetCodeError('not-logged-in', 'Log in to leetcode.com, then retry');
   if (r.status === 429) return new LeetCodeError('rate-limited', 'LeetCode is rate-limiting submissions — wait a bit, then retry');
+  if (r.status >= 500) return new LeetCodeError('rejected', `LeetCode is having trouble right now (HTTP ${r.status}) — try again in a minute`);
   return new LeetCodeError('rejected', `LeetCode rejected the submission (HTTP ${r.status})`);
 }
 
@@ -34,6 +35,8 @@ export function createLeetCodeClient({ fetch, getCsrfToken, sleep, pollIntervalM
         headers: { 'content-type': 'application/json', ...(csrf ? { 'x-csrftoken': csrf } : {}) },
         body: JSON.stringify({ query: QUESTION_QUERY, variables: { titleSlug: slug } }),
       });
+      // The question lookup works logged out, so a 403 here is a block (e.g. bot check), not a login problem.
+      if (r.status === 403) throw new LeetCodeError('rejected', 'LeetCode blocked the problem lookup (HTTP 403) — open leetcode.com in a tab once, then retry');
       if (!r.ok) throw errorFor(r);
       const q = (await r.json())?.data?.question;
       return q ? { questionId: String(q.questionId), title: q.title, isPaidOnly: !!q.isPaidOnly } : null;
@@ -50,7 +53,10 @@ export function createLeetCodeClient({ fetch, getCsrfToken, sleep, pollIntervalM
       });
       if (!r.ok || isLoginRedirect(r)) throw errorFor(r);
       const body = await r.json().catch(() => null);
-      if (!body || body.submission_id == null) throw new LeetCodeError('rejected', 'LeetCode didn’t accept the submission');
+      if (!body || body.submission_id == null) {
+        const reason = typeof body?.error === 'string' && body.error.trim() ? `: ${body.error.trim()}` : ' — open the problem on leetcode.com to check, then retry';
+        throw new LeetCodeError('rejected', `LeetCode didn’t take the submission${reason}`);
+      }
       return String(body.submission_id);
     },
 

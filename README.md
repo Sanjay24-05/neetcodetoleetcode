@@ -25,6 +25,7 @@ After reloading a NeetCode page, the button starts off until NeetCode accepts ag
 - **The popup** (click the extension icon) lists every problem NeetCode accepted, grouped by day, sent or not.
   - **Send / Resend** submits that entry. Sending something you solved on an earlier day asks first, because it will count toward *today* on your heatmap.
 - **Premium or NeetCode-only problems** are flagged and not sent.
+- **Logged out of LeetCode?** The error comes with a **Log in to LeetCode ↗** link (in the ⋯ card and in the popup). Log in, come back, and press the button again.
 
 ### Fixing a match
 
