@@ -20,3 +20,12 @@ export function applySendResult(state, r) {
   if (r.status === 'error') return { ...next, error: { kind: r.kind, message: r.message } };
   return next;
 }
+
+/** Label and colour tone of the → LeetCode button, from panelState() output plus panel state. */
+export function buttonLook(panel, { sending, lastSend }) {
+  if (sending) return { label: sending === 'judging' ? 'Judging…' : 'Sending…', tone: 'busy' };
+  if (!panel.enabled) return { label: '→ LeetCode', tone: 'off' };
+  if (!lastSend) return { label: '→ LeetCode', tone: 'ready' };
+  const mark = lastSend.verdictUnknown ? '…' : lastSend.statusMsg === 'Accepted' ? '✓' : '✗';
+  return { label: `${mark} Resend`, tone: 'ready' };
+}

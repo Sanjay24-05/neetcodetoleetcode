@@ -22,4 +22,5 @@ await build({
 for (const f of ['manifest.json', 'src/popup/popup.html', 'src/popup/popup.css']) {
   cpSync(f, `dist/${f.split('/').pop()}`);
 }
+cpSync('icons', 'dist/icons', { recursive: true });
 console.log('built dist/');

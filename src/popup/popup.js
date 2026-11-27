@@ -33,7 +33,7 @@ const el = (tag, props = {}, ...children) => {
 function renderEntry(e) {
   const st = rs(e.key);
   const [icon, cls] = iconFor(e);
-  const btn = el('button', { textContent: e.send ? 'Resend' : 'Send', disabled: st.busy, onclick: () => onSend(e) });
+  const btn = el('button', { textContent: e.send ? 'Resend' : 'Send', className: e.send ? 'resend' : '', disabled: st.busy, onclick: () => onSend(e) });
   const line = el('div', { className: 'line' },
     el('span', { className: `icon ${cls}`, textContent: icon }),
     el('span', { className: 'title', textContent: e.title, title: e.title }),
