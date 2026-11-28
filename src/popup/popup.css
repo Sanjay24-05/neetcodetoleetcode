@@ -2,21 +2,26 @@ body { width: 360px; margin: 0; font: 12px/1.4 system-ui, sans-serif; color: #e6
 header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #2c2c2c; }
 header img { width: 18px; height: 18px; }
 main { max-height: 520px; overflow-y: auto; padding: 4px 0 8px; }
-h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #888; margin: 10px 12px 4px; }
+h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #888; margin: 10px 12px 4px; }
 .entry { padding: 4px 12px; }
 .line { display: flex; align-items: center; gap: 6px; }
 .icon { width: 14px; text-align: center; }
 .icon.ok { color: #3fb950; } .icon.bad { color: #f85149; } .icon.none { color: #888; } .icon.pending { color: #d29922; }
 .title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lang, .verdict, .time { color: #9a9a9a; white-space: nowrap; }
-button { font: inherit; font-weight: 600; padding: 2px 10px; border-radius: 5px; border: 1px solid transparent; background: #ffa116; color: #1a1a1a; cursor: pointer; }
-button:hover:not(:disabled) { background: #ffb547; }
-button.resend { background: #2b2b2b; color: #ffb547; border-color: #4a4a4a; }
-button.resend:hover:not(:disabled) { background: #383838; }
-button:disabled { background: #2b2b2b; color: #7d7d7d; border-color: #3d3d3d; cursor: progress; }
+/* Send is outlined so a long list of unsent rows doesn't become a column of orange; it fills on hover. */
+button { font: inherit; font-weight: 600; padding: 2px 10px; border-radius: 4px; border: 1px solid #ffa116; background: transparent; color: #ffb547; cursor: pointer; }
+button:hover:not(:disabled) { background: #ffa116; color: #1a1a1a; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid #8ab4f8; outline-offset: 2px; }
+button.resend { background: transparent; color: #bdbdbd; border-color: #4a4a4a; font-weight: 400; }
+button.resend:hover:not(:disabled) { background: #383838; color: #fff; }
+button:disabled { background: #2b2b2b; color: #9a9a9a; border-color: #3d3d3d; cursor: progress; }
 button.ghost { background: transparent; border-color: #555; color: #ccc; font-weight: 400; }
 button.ghost:hover:not(:disabled) { background: #2c2c2c; }
-.sub { display: flex; gap: 8px; align-items: center; margin: 2px 0 0 20px; font-size: 11px; color: #aaa; }
+.sub { display: flex; gap: 8px; align-items: center; margin: 2px 0 0 20px; font-size: 12px; color: #aaa; }
+.sub button.link { all: unset; color: #8ab4f8; cursor: pointer; font-size: 12px; }
+.sub button.link:hover { text-decoration: underline; }
+.sub button.link:focus-visible { outline: 2px solid #8ab4f8; outline-offset: 2px; }
 .sub a { color: #8ab4f8; cursor: pointer; }
 .map { display: flex; gap: 4px; margin: 4px 0 0 20px; }
 .map input { flex: 1; font: inherit; padding: 2px 6px; border-radius: 4px; border: 1px solid #555; background: #222; color: #eee; }

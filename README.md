@@ -19,17 +19,17 @@ After reloading a NeetCode page, the button starts off until NeetCode accepts ag
 
 - **On a NeetCode problem page**, an orange **→ LeetCode** button appears right after NeetCode's Submit button.
   - It is grey until NeetCode says **Accepted**, then turns orange (with a short pulse). If you edit the code afterwards, it goes grey again until NeetCode accepts again.
-  - Clicking it sends exactly the code NeetCode accepted. The button shows Sending… / Judging…, then **✓ Resend** (or ✗ if LeetCode rejected it).
-  - Hover the button, or click **⋯** next to it, to see the full status (e.g. `LeetCode: Accepted · 52 ms · sent 9:41 PM`) and to fix the LeetCode match.
+  - Clicking it sends exactly the code NeetCode accepted. The button shows Sending… / Judging…, then **✓ On LeetCode** in green (still clickable to resend), or **✗ Resend** if LeetCode rejected it.
+  - Hover the button, or click **ⓘ** next to it, to see the full status (e.g. `LeetCode: Accepted · 52 ms · sent 9:41 PM`), **which LeetCode problem it will submit to** ("Sends to: Two Sum ↗"), and to fix the match.
   - If you already sent this problem today, it asks before sending again.
 - **The popup** (click the extension icon) lists every problem NeetCode accepted, grouped by day, sent or not.
   - **Send / Resend** submits that entry. Sending something you solved on an earlier day asks first, because it will count toward *today* on your heatmap.
 - **Premium or NeetCode-only problems** are flagged and not sent.
-- **Logged out of LeetCode?** The error comes with a **Log in to LeetCode ↗** link (in the ⋯ card and in the popup). Log in, come back, and press the button again.
+- **Logged out of LeetCode?** The error comes with a **Log in to LeetCode ↗** link (in the ⓘ card and in the popup). Log in, come back, and press the button again.
 
 ### Fixing a match
 
-If a problem shows **No LeetCode match**, or matches the wrong problem, click **⋯** next to the button, then **Wrong/missing match? Paste LeetCode URL**, (or **Fix match** in the popup), paste the LeetCode problem URL, and save. Your choice takes priority from then on. **Clear** removes it.
+If a problem shows **No LeetCode match**, or matches the wrong problem, click **ⓘ** next to the button, then **Wrong/missing match? Paste LeetCode URL** (or **Fix match** in the popup), paste the LeetCode problem URL, and save. Your choice takes priority from then on. **Clear** removes it.
 
 ### Heatmap note
 

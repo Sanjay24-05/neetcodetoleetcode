@@ -44,7 +44,7 @@ function renderEntry(e) {
     btn);
   const mapped = data.userMappings[e.neetcodeSlug];
   const sub = el('div', { className: 'sub' },
-    el('a', { textContent: 'Fix match', onclick: () => { st.mapOpen = !st.mapOpen; render(); } }),
+    el('button', { className: 'link', type: 'button', textContent: 'Fix match', ariaExpanded: String(st.mapOpen), onclick: () => { st.mapOpen = !st.mapOpen; render(); } }),
     mapped ? el('span', { textContent: `→ ${mapped}` }) : null,
     st.msg ? el('span', { textContent: st.msg }) : null,
     st.login ? el('a', { className: 'login', textContent: 'Log in to LeetCode ↗', href: st.login, target: '_blank', rel: 'noopener' }) : null);

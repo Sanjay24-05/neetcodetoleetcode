@@ -26,6 +26,14 @@ export function buttonLook(panel, { sending, lastSend }) {
   if (sending) return { label: sending === 'judging' ? 'Judging…' : 'Sending…', tone: 'busy' };
   if (!panel.enabled) return { label: '→ LeetCode', tone: 'off' };
   if (!lastSend) return { label: '→ LeetCode', tone: 'ready' };
-  const mark = lastSend.verdictUnknown ? '…' : lastSend.statusMsg === 'Accepted' ? '✓' : '✗';
+  // Accepted on LeetCode: calm 'done' look — still clickable, but a resend isn't the obvious next step.
+  if (!lastSend.verdictUnknown && lastSend.statusMsg === 'Accepted') return { label: '✓ On LeetCode', tone: 'done' };
+  const mark = lastSend.verdictUnknown ? '…' : '✗';
   return { label: `${mark} Resend`, tone: 'ready' };
+}
+
+/** The LeetCode problem a RESOLVE reply says this page will submit to, as a link, or null. */
+export function targetLink(match) {
+  if (!match?.leetcodeSlug) return null;
+  return { text: match.leetcodeTitle || match.leetcodeSlug, href: `https://leetcode.com/problems/${match.leetcodeSlug}/` };
 }
